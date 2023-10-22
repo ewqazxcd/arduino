@@ -18,6 +18,10 @@ struct Coordinate {char x; char y;};
 
 struct Queue3 {Coordinate a; Coordinate b; Coordinate c;};
 
+struct Queue3Arr {
+  Coordinate buffer[3];
+};
+
 
 
 ////////// BEGIN Queue3
@@ -42,6 +46,24 @@ Coordinate lastInQueue(Queue3* q) {
 
 
 
+////////// BEGIN Queue3Arr
+void putQueue(Queue3Arr* q, Coordinate coord) {
+  q->buffer[2] = q->buffer[1]; 
+  q->buffer[1] = q->buffer[0]; 
+  q->buffer[0] = coord; 
+}
+
+Coordinate firstInQueue(Queue3Arr* q) {
+  return q->buffer[2]; 
+}
+
+Coordinate lastInQueue(Queue3Arr* q) {
+  return q->buffer[0]; 
+}
+////////// END Queue3Arr
+
+
+
 int xValue;
 int yValue;
 int buttonValue;
@@ -57,7 +79,8 @@ bool headyMinus;
 bool headxMinus;
 LedControl lc = LedControl(DIN, CLK, CS, 0);
 
-Queue3 snake;
+// Queue3 snake;
+Queue3Arr snake;
 
 void setup() {
   pinMode(XAXIS, INPUT);
@@ -69,7 +92,8 @@ void setup() {
   lc.clearDisplay(0);
   Serial.begin(9600);
 
-  snake = newQueue3({0, 0}, {0, 0}, {0, 0});
+  // snake = newQueue3({0, 0}, {0, 0}, {0, 0});
+  snake = Queue3Arr {{{0, 0}, {0, 0}, {0, 0}}};
 };
 
 int convertJoyToRawDirection(int x, int y) {
