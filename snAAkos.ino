@@ -47,6 +47,10 @@ Coordinate lastInQueue(Queue3* q) {
 
 
 ////////// BEGIN Queue3Arr
+Queue3Arr newQueue3Arr(Coordinate a, Coordinate b, Coordinate c) {
+  return Queue3Arr {{a, b, c}};
+}
+
 void putQueue(Queue3Arr* q, Coordinate coord) {
   q->buffer[2] = q->buffer[1]; 
   q->buffer[1] = q->buffer[0]; 
@@ -93,7 +97,7 @@ void setup() {
   Serial.begin(9600);
 
   // snake = newQueue3({0, 0}, {0, 0}, {0, 0});
-  snake = Queue3Arr {{{0, 0}, {0, 0}, {0, 0}}};
+  snake = newQueue3Arr({0, 0}, {0, 0}, {0, 0});
 };
 
 int convertJoyToRawDirection(int x, int y) {
