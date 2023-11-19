@@ -29,7 +29,7 @@ Queue3 newQueue3(Coordinate a, Coordinate b, Coordinate c) {
   return Queue3 {a, b, c};
 }
 
-void putQueue(Queue3* q, Coordinate coord) {
+void pushQueue(Queue3* q, Coordinate coord) {
   q->c = q->b;
   q->b = q->a;
   q->a = coord;
@@ -51,13 +51,13 @@ Queue3Arr newQueue3Arr(Coordinate a, Coordinate b, Coordinate c) {
   return Queue3Arr {{a, b, c}};
 }
 
-void putQueueReference(Queue3Arr* q, Coordinate coord) {
+void pushQueueReference(Queue3Arr* q, Coordinate coord) {
   q->buffer[2] = q->buffer[1]; 
   q->buffer[1] = q->buffer[0]; 
   q->buffer[0] = coord;
 }
 
-void putQueue(Queue3Arr* q, Coordinate coord) {
+void pushQueue(Queue3Arr* q, Coordinate coord) {
   for(int i = 2; i > 0; i--) {
     q->buffer[i] = q->buffer[i-1];
   }
@@ -138,7 +138,7 @@ void moveSnake() {
   else if (snakeDir==DOWN ) {if (atDownBorder (head)) {head.y--; snakeDir = LEFT ;} head.y++;}
   else if (snakeDir==LEFT ) {if (atLeftBorder (head)) {head.x++; snakeDir = UP   ;} head.x--;}
 
-  putQueue(&snake, head);
+  pushQueue(&snake, head);
   ledOff(tail);
   ledOn(head);
 }
