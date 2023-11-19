@@ -51,10 +51,17 @@ Queue3Arr newQueue3Arr(Coordinate a, Coordinate b, Coordinate c) {
   return Queue3Arr {{a, b, c}};
 }
 
-void putQueue(Queue3Arr* q, Coordinate coord) {
+void putQueueReference(Queue3Arr* q, Coordinate coord) {
   q->buffer[2] = q->buffer[1]; 
   q->buffer[1] = q->buffer[0]; 
-  q->buffer[0] = coord; 
+  q->buffer[0] = coord;
+}
+
+void putQueue(Queue3Arr* q, Coordinate coord) {
+  for(int i = 2; i > 0; i--) {
+    q->buffer[i] = q->buffer[i-1];
+  }
+  q->buffer[0] = coord;
 }
 
 Coordinate firstInQueue(Queue3Arr* q) {
