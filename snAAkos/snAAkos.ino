@@ -14,12 +14,19 @@
 #define JOYPRESS    A5
 #define DELAY       75
 
+#define MAX_QUEUE_SIZE 64
+
 struct Coordinate {char x; char y;};
 
 struct Queue3 {Coordinate a; Coordinate b; Coordinate c;};
 
 struct Queue3Arr {
   Coordinate buffer[3];
+};
+
+struct FlexQueue {
+  int size;
+  Coordinate* buffer;
 };
 
 
@@ -75,6 +82,44 @@ Coordinate lastInQueue(Queue3Arr* q) {
 
 
 
+////////// BEGIN FlexQueue
+FlexQueue newFlexQueue(Coordinate* buffer) {
+  return FlexQueue {0, buffer};
+}
+
+void pushQueue(FlexQueue* q, Coordinate coord) {
+  for(int i = q->size; i > 0; i--) {
+    q->buffer[i] = q->buffer[i-1];
+  }
+  q->buffer[0] = coord;
+  q->size++;
+}
+
+void popQueue(FlexQueue* q) {
+  q->size--;
+}
+
+Coordinate firstInQueue(FlexQueue* q) {
+  q->buffer[0];
+}
+
+Coordinate lastInQueue(FlexQueue* q) {
+  q->buffer[(q->size) - 1];
+}
+
+void printQueue(FlexQueue* q) {
+  Serial.println("Current queue");
+  for(int i = q->size - 1; i >= 0; i--) {
+    Serial.print(q->buffer[i].x, DEC);
+    Serial.print(", ");
+    Serial.println(q->buffer[i].y, DEC);
+  }
+}
+
+////////// END FlexQueue
+
+
+
 int xValue;
 int yValue;
 int buttonValue;
@@ -91,20 +136,33 @@ bool headxMinus;
 LedControl lc = LedControl(DIN, CLK, CS, 0);
 
 // Queue3 snake;
-Queue3Arr snake;
+// Queue3Arr snake;
+
+Coordinate snakeBuffer[MAX_QUEUE_SIZE];
+FlexQueue snake;
 
 void setup() {
   pinMode(XAXIS, INPUT);
   pinMode(YAXIS, INPUT);
   pinMode(JOYPRESS, INPUT);
   digitalWrite(JOYPRESS, HIGH);
+  digitalWrite(13, HIGH);
   lc.shutdown(0, false);
   lc.setIntensity(0, 0);
   lc.clearDisplay(0);
   Serial.begin(9600);
 
   // snake = newQueue3({0, 0}, {0, 0}, {0, 0});
-  snake = newQueue3Arr({0, 0}, {0, 0}, {0, 0});
+  // snake = newQueue3Arr({0, 0}, {0, 0}, {0, 0});
+  snake = newFlexQueue(snakeBuffer);
+  pushQueue(&snake, Coordinate {1, 2});
+  pushQueue(&snake, Coordinate {3, 4});
+  pushQueue(&snake, Coordinate {5, 6});
+
+  printQueue(&snake);
+
+  Serial.println("------------ setup done");
+  Serial.println((int)snakeBuffer, HEX);
 };
 
 int convertJoyToRawDirection(int x, int y) {
@@ -129,9 +187,21 @@ bool atRightBorder(Coordinate coord) {return coord.x == 7;}
 bool atDownBorder (Coordinate coord) {return coord.y == 7;}
 bool atLeftBorder (Coordinate coord) {return coord.x == 0;}
 
+Coordinate head;
+Coordinate tail;
+
 void moveSnake() {
-  Coordinate head = lastInQueue (&snake);
-  Coordinate tail = firstInQueue(&snake);
+  head = lastInQueue (&snake);
+  tail = firstInQueue(&snake);
+
+  Serial.print("head ");
+  Serial.print(head.x,DEC);
+  Serial.print(", ");
+  Serial.println(head.y,DEC);
+  Serial.print("tail ");
+  Serial.print(tail.x,DEC);
+  Serial.print(", ");
+  Serial.println(tail.y,DEC);
 
   if      (snakeDir==UP   ) {if (atTopBorder  (head)) {head.y++; snakeDir++      ;} head.y--;}
   else if (snakeDir==RIGHT) {if (atRightBorder(head)) {head.x--; snakeDir++      ;} head.x++;}
@@ -139,11 +209,17 @@ void moveSnake() {
   else if (snakeDir==LEFT ) {if (atLeftBorder (head)) {head.x++; snakeDir = UP   ;} head.x--;}
 
   pushQueue(&snake, head);
+  popQueue(&snake);
+
   ledOff(tail);
   ledOn(head);
 }
 
 void loop() {
+  Serial.println("*************");
+
+  printQueue(&snake);
+
   xValue    = analogRead  (XAXIS   );
   yValue    = analogRead  (YAXIS   );
   buttonValue    = digitalRead (JOYPRESS);
@@ -155,8 +231,8 @@ void loop() {
   if (buttonValue == 1)               {prevButtonValue     = 1;}
   if (buttonValue != 1)               {prevButtonValue     = 0;}
   if (rotation > 3)                   {rotation            = 0;}
-  if (joyDirection != NO_DIRECTION)   {snakeDir = joyDirection;} 
+  if (joyDirection != NO_DIRECTION)   {snakeDir = joyDirection;}
 
   moveSnake();
-  delay(DELAY*2);
+  delay(DELAY*2*20);
 }
