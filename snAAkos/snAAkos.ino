@@ -100,11 +100,11 @@ void popQueue(FlexQueue* q) {
 }
 
 Coordinate firstInQueue(FlexQueue* q) {
-  q->buffer[0];
+  return q->buffer[(q->size) - 1];
 }
 
 Coordinate lastInQueue(FlexQueue* q) {
-  q->buffer[(q->size) - 1];
+  return q->buffer[0];
 }
 
 void printQueue(FlexQueue* q) {
@@ -155,9 +155,9 @@ void setup() {
   // snake = newQueue3({0, 0}, {0, 0}, {0, 0});
   // snake = newQueue3Arr({0, 0}, {0, 0}, {0, 0});
   snake = newFlexQueue(snakeBuffer);
-  pushQueue(&snake, Coordinate {1, 2});
-  pushQueue(&snake, Coordinate {3, 4});
-  pushQueue(&snake, Coordinate {5, 6});
+  pushQueue(&snake, Coordinate{ 0, 0 });
+  pushQueue(&snake, Coordinate{ 0, 0 });
+  pushQueue(&snake, Coordinate{ 0, 0 });
 
   printQueue(&snake);
 
@@ -234,5 +234,5 @@ void loop() {
   if (joyDirection != NO_DIRECTION)   {snakeDir = joyDirection;}
 
   moveSnake();
-  delay(DELAY*2*20);
+  delay(DELAY*2);
 }
